@@ -1,0 +1,3 @@
+[submodule "themes/bebekgoren"]
+	path = themes/bebekgoren
+	url = https://github.com/abedeck/bebekgoreng.git
