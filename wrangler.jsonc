@@ -1,0 +1,16 @@
+{
+  // Nama project — samakan dengan nama project yang sudah ada di Cloudflare dashboard
+  "name": "bebekbakar",
+
+  // Tanggal compatibility, boleh dibiarkan seperti ini
+  "compatibility_date": "2026-03-01",
+
+  // Konfigurasi static assets — folder ini adalah hasil build Hugo
+  "assets": {
+    "directory": "./public/",
+
+    // "404-page" -> tampilkan public/404.html kalau ada, kalau tidak ada 404 default
+    // Cocok untuk situs blog/multi-halaman seperti Hugo (bukan SPA)
+    "not_found_handling": "404-page"
+  }
+}
