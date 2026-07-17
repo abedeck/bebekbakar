@@ -7,7 +7,7 @@ summary: 'Rangkuman modifikasi bore up motor Vario dari 110cc ke 130cc.'
 
 Ini cerita proses bore up motor Vario saya dari 110cc jadi sekitar 130cc.
 
-![Motor sebelum dibongkar](foto-kanan.jpg)
+![Motor sebelum dibongkar](cover.jpg)
 
 ## Proses Pembongkaran
 
