@@ -7,7 +7,7 @@ summary: 'Rangkuman modifikasi bore up motor Vario dari 110cc ke 130cc.'
 
 Ini cerita proses bore up motor Vario saya dari 110cc jadi sekitar 130cc.
 
-![Motor sebelum dibongkar](cover.jpg)
+{{< img src="cover.jpg" alt="Piston Kawahara 53.5mm" caption="Piston ukuran 53.5mm yang sudah terpasang" >}}
 
 ## Proses Pembongkaran
 

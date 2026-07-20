@@ -2,3 +2,8 @@
 languageCode = 'en-us'
 title = 'GKJ PALIHAN'
 theme='bebekgoreng'
+
+[imaging]
+  resampleFilter = "CatmullRom" # Filter agar gambar tetap tajam saat di-resize
+  quality = 80                  # Kualitas kompresi bawaan (0-100)
+  anchor = "Smart"              # Pemotongan pintar berfokus pada objek utama
