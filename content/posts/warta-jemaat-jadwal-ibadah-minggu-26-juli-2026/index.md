@@ -65,7 +65,7 @@ Bersyukur atas kelahiran putra pertama dari pasangan **Bpk. Agus & Ibu Siska** p
   {{< bento-item src="657bbcede8dcc68d6e43f48f364b22cd.jpg" size="big" alt="Foto Utama" >}}
   {{< bento-item src="657bbcede8dcc68d6e43f48f364b22cd.jpg" size="tall" alt="Foto tinggi">}}
   {{< bento-item src="657bbcede8dcc68d6e43f48f364b22cd.jpg" size="wide" alt="Foto wide">}}
-  {{< bento-item src="https://i.imgur.com/oj1PTlX.jpeg" size="normal" alt="Foto normal" >}}
+  {{< bento-item src="content/posts/warta-jemaat-jadwal-ibadah-minggu-26-juli-2026/657bbcede8dcc68d6e43f48f364b22cd.jpg" size="normal" alt="Foto normal" >}}
 {{< /bento >}}
 
 ## IV. Laporan Keuangan Singkat
