@@ -9,6 +9,9 @@ author: Sekretariat Majelis
 categories:
   - Warta Gereja
   - Pengumuman
+bento_gallery:
+  - size: wide
+    drive_id: 0B_rQCxIGqby2YmNWcUxmdGVzWVk
 ---
 ![Foto Kegiatan Pemuda](08aaeeaf5c1bb3341857a479b3447bc8.jpg "Foto Kegiatan Pemuda")
 
