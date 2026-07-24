@@ -60,8 +60,9 @@ Dalam rangka persiapan pelayanan masyarakat bulan depan, Pengurus Diakonia mengu
 Bersyukur atas kelahiran putra pertama dari pasangan **Bpk. Agus & Ibu Siska** pada tanggal 22 Juli 2026. Ibu dan bayi dalam keadaan sehat. Kiranya Tuhan berkati keluarga kecil ini.
 
 - - -
+
 {{< bento >}}
-  {{< bento-item src="content/posts/657bbcede8dcc68d6e43f48f364b22cd.jpg" size="big" alt="Foto Utama" >}}
+  {{< bento-item src="/657bbcede8dcc68d6e43f48f364b22cd.jpg" size="big" alt="Foto Utama" >}}
   {{< bento-item src="https://i.pinimg.com/vwebp/1200x/d1/02/ce/d102cebc98768136016c72d0e592b010.webp" size="tall" >}}
   {{< bento-item src="https://i.imgur.com/tILLyVO.jpeg" size="wide" >}}
   {{< bento-item src="https://i.imgur.com/oj1PTlX.jpeg" size="normal" >}}
