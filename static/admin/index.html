@@ -9,61 +9,86 @@
     <!-- Script Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
-    <!-- CUSTOM COMPONENT BENTO ITEM -->
+    <!-- ======================================================== -->
+    <!-- COMPONENT BENTO GRID GALLERY UTK NORMIES -->
+    <!-- ======================================================== -->
     <script>
       CMS.registerEditorComponent({
-        // ID internal komponen
-        id: "bento-item",
-        // Nama yang muncul di menu tombol "+" Decap CMS
-        label: "Bento Gallery Item",
-        // Input form yang muncul saat klik tombol
+        id: "bento-gallery",
+        label: "🖼️ Bento Gallery (Galeri Foto)",
+        // Form visual untuk pengguna non-teknis
         fields: [
           {
-            name: "src",
-            label: "URL Foto (Imgur/Direct Link)",
-            widget: "string",
-            hint: "Contoh: https://i.imgur.com/xyz123.jpg"
-          },
-          {
-            name: "size",
-            label: "Ukuran Grid",
-            widget: "select",
-            default: "normal",
-            options: [
-              { label: "Standar / Normal (1x1)", value: "normal" },
-              { label: "Melebar / Landscape (2x1)", value: "wide" },
-              { label: "Tinggi / Portrait (1x2)", value: "tall" },
-              { label: "Besar Utama (2x2)", value: "big" }
+            label: "Daftar Foto Kegiatan",
+            name: "images",
+            widget: "list",
+            summary: "{{fields.alt}} ({{fields.size}})",
+            fields: [
+              {
+                label: "URL / Upload Foto",
+                name: "src",
+                widget: "string",
+                hint: "Tempel link foto (contoh Imgur: https://i.imgur.com/xyz123.jpg)"
+              },
+              {
+                label: "Ukuran Layout Foto",
+                name: "size",
+                widget: "select",
+                default: "normal",
+                options: [
+                  { label: "⬛ Standar / Normal (1x1)", value: "normal" },
+                  { label: "▬ Melebar / Landscape (2x1)", value: "wide" },
+                  { label: "▮ Tinggi / Portrait (1x2)", value: "tall" },
+                  { label: "██ Besar Utama (2x2)", value: "big" }
+                ]
+              },
+              {
+                label: "Keterangan Foto (Alt/Caption)",
+                name: "alt",
+                widget: "string",
+                required: false
+              }
             ]
-          },
-          {
-            name: "alt",
-            label: "Keterangan Foto (Alt / Caption)",
-            widget: "string",
-            required: false
           }
         ],
-        // Regex untuk mengenali shortcode di dalam markdown
-        pattern: /^\{\{<\s*bento-item\s+src="([^"]+)"(?:\s+size="([^"]+)")?(?:\s+alt="([^"]+)")?\s*>\}\}$/,
-        
-        // Fungsi membaca isi shortcode saat diedit kembali
+
+        // Regex untuk mengenali shortcode di editor
+        pattern: /^\{\{<\s*bento\s*>\}\}([\s\S]*?)\{\{<\s*\/bento\s*>\}\}$/,
+
+        // Membaca data jika artikel diedit kembali
         fromBlock: function(match) {
-          return {
-            src: match[1],
-            size: match[2] || "normal",
-            alt: match[3] || ""
-          };
+          const innerContent = match[1] || "";
+          const itemRegex = /\{\{<\s*bento-item\s+src="([^"]+)"(?:\s+size="([^"]+)")?(?:\s+alt="([^"]+)")?\s*>\}\}/g;
+          const images = [];
+          let itemMatch;
+
+          while ((itemMatch = itemRegex.exec(innerContent)) !== null) {
+            images.push({
+              src: itemMatch[1],
+              size: itemMatch[2] || "normal",
+              alt: itemMatch[3] || ""
+            });
+          }
+
+          return { images: images };
         },
-        
-        // Fungsi membuat sintaks shortcode Hugo
+
+        // Merubah input visual form pengguna menjadi shortcode Hugo otomatis
         toBlock: function(obj) {
-          return `{{< bento-item src="${obj.src || ''}" size="${obj.size || 'normal'}" alt="${obj.alt || ''}" >}}`;
+          if (!obj.images || !obj.images.length) return "";
+          
+          const itemsHtml = obj.images.map(img => {
+            return `  {{< bento-item src="${img.src || ''}" size="${img.size || 'normal'}" alt="${img.alt || ''}" >}}`;
+          }).join("\n");
+
+          return `{{< bento >}}\n${itemsHtml}\n{{< /bento >}}`;
         },
-        
-        // Tampilan preview sederhana di dalam editor Decap CMS
+
+        // Tampilan kotak preview di dalam dashboard admin Decap CMS
         toPreview: function(obj) {
-          return `<div style="padding: 8px; border: 1px dashed #ccc; margin: 4px 0; background: #f9f9f9;">
-            📷 <strong>Bento Item (${obj.size || 'normal'})</strong>: ${obj.src || 'No URL'}
+          const count = obj.images ? obj.images.length : 0;
+          return `<div style="padding: 12px; border: 2px dashed #0284c7; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-weight: bold;">
+            🖼️ Galeri Bento Grid (${count} foto tersimpan)
           </div>`;
         }
       });
