@@ -10,13 +10,14 @@
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
     <!-- ======================================================== -->
-    <!-- COMPONENT BENTO GRID GALLERY UTK NORMIES -->
+    <!-- COMPONENT BENTO GRID GALLERY (SUPPORT UPLOAD LANGSUNG) -->
     <!-- ======================================================== -->
     <script>
       CMS.registerEditorComponent({
         id: "bento-gallery",
-        label: "🖼️ Bento Gallery (Galeri Foto)",
-        // Form visual untuk pengguna non-teknis
+        label: "🖼️ Bento Gallery (Upload Foto)",
+        
+        // Form Visual
         fields: [
           {
             label: "Daftar Foto Kegiatan",
@@ -25,10 +26,11 @@
             summary: "{{fields.alt}} ({{fields.size}})",
             fields: [
               {
-                label: "URL / Upload Foto",
+                label: "Pilih / Upload Foto",
                 name: "src",
-                widget: "string",
-                hint: "Tempel link foto (contoh Imgur: https://i.imgur.com/xyz123.jpg)"
+                widget: "image", // <-- Diubah jadi widget image agar ada tombol UPLOAD
+                choose_url: true,
+                hint: "Bisa upload foto dari galeri HP/Laptop, atau tempel link URL"
               },
               {
                 label: "Ukuran Layout Foto",
@@ -52,10 +54,10 @@
           }
         ],
 
-        // Regex untuk mengenali shortcode di editor
+        // Pattern Regex Shortcode Hugo
         pattern: /^\{\{<\s*bento\s*>\}\}([\s\S]*?)\{\{<\s*\/bento\s*>\}\}$/,
 
-        // Membaca data jika artikel diedit kembali
+        // Baca Ulang Data saat Edit Post
         fromBlock: function(match) {
           const innerContent = match[1] || "";
           const itemRegex = /\{\{<\s*bento-item\s+src="([^"]+)"(?:\s+size="([^"]+)")?(?:\s+alt="([^"]+)")?\s*>\}\}/g;
@@ -73,7 +75,7 @@
           return { images: images };
         },
 
-        // Merubah input visual form pengguna menjadi shortcode Hugo otomatis
+        // Render ke Shortcode Hugo
         toBlock: function(obj) {
           if (!obj.images || !obj.images.length) return "";
           
@@ -84,11 +86,11 @@
           return `{{< bento >}}\n${itemsHtml}\n{{< /bento >}}`;
         },
 
-        // Tampilan kotak preview di dalam dashboard admin Decap CMS
+        // Tampilan Preview di Admin Panel
         toPreview: function(obj) {
           const count = obj.images ? obj.images.length : 0;
           return `<div style="padding: 12px; border: 2px dashed #0284c7; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-weight: bold;">
-            🖼️ Galeri Bento Grid (${count} foto tersimpan)
+            🖼️ Bento Gallery (${count} foto di-upload)
           </div>`;
         }
       });
