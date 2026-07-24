@@ -14,18 +14,13 @@
 
     <script>
       // ========================================================
-      // AUTOMATIC BROWSER-SIDE WEBP COMPRESSOR (INTECPTOR INPUT)
+      // AUTOMATIC BROWSER-SIDE WEBP COMPRESSOR (FIXED INTERCEPTOR)
       // ========================================================
       (function() {
-        // Simpan fungsi dasar pemroses file
-        const originalChange = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
-
         // Fungsi pembantu untuk kompresi file
         async function processAndCompress(file) {
-          if (!file || !file.type.startsWith('image/')) return file;
-          
-          // Jangan kompres jika file sudah berupa webp kecil atau SVG
-          if (file.type === 'image/svg+xml') return file;
+          // Hanya kompres jika file adalah gambar, bukan SVG, dan ukurannya cukup besar
+          if (!file || !file.type.startsWith('image/') || file.type === 'image/svg+xml' || file.size < 50 * 1024) return file;
 
           const options = {
             maxSizeMB: 0.5,             // Ukuran maksimal ~500 KB
@@ -58,36 +53,64 @@
           }
         }
 
-        // Mencegat (Intercept) Event Change pada Input File Media Decap CMS
+        // Mencegat (Intercept) Event Change pada Input File Media Decap CMS (FIXED)
         document.addEventListener('change', async function(e) {
           const target = e.target;
+          
+          // Pastikan ini adalah input file
           if (target && target.tagName === 'INPUT' && target.type === 'file') {
-            if (target.dataset.compressing === 'true') return;
+            
+            // Mencegah *infinite loop* saat kita memicu ulang event change
+            if (target.dataset.processing === 'true') return;
 
             const files = target.files;
             if (!files || files.length === 0) return;
 
+            // Pastikan ini adalah input file yang digunakan oleh Decap CMS
+            // Decap CMS biasanya menambahkan atribut tertentu, tapi mengecek input file saja sudah cukup
+            
             // Hentikan event asli sejenak
             e.stopImmediatePropagation();
-            target.dataset.compressing = 'true';
+            e.preventDefault(); // Mencegah Decap langsung membaca file asli
+            target.dataset.processing = 'true'; // Tandai bahwa kita sedang memproses file
 
-            const newFiles = new DataTransfer();
+            console.log(`Mendeteksi ${files.length} file dipilih. Memulai kompresi...`);
 
-            for (let i = 0; i < files.length; i++) {
-              const compressed = await processAndCompress(files[i]);
-              newFiles.items.add(compressed);
+            try {
+              const newFiles = new DataTransfer();
+
+              for (let i = 0; i < files.length; i++) {
+                // Kompres setiap file
+                const compressed = await processAndCompress(files[i]);
+                newFiles.items.add(compressed);
+              }
+
+              // Ganti isi input file dengan file .webp hasil kompresi
+              target.files = newFiles.files;
+              console.log("File di input browser telah diganti dengan versi WebP.");
+
+              // Trigger ulang event change agar Decap CMS membaca file baru
+              // Decap CMS menangkap event change untuk memproses file dan menampilkan pratinjau
+              const newEvent = new Event('change', { bubbles: true, cancelable: true });
+              
+              // Lepas penanda pemrosesan agar pemicu ulang event change tidak memanggil skrip ini lagi
+              target.dataset.processing = 'false'; 
+              
+              target.dispatchEvent(newEvent);
+              console.log("Memicu ulang event change untuk Decap CMS.");
+
+            } catch (error) {
+              console.error("Error selama proses kompresi:", error);
+              // Fallback jika terjadi error, kembalikan ke event asli
+              target.dataset.processing = 'false';
+              target.dispatchEvent(new Event('change', { bubbles: true }));
+            } finally {
+              // Pastikan penanda pemrosesan dihapus
+              delete target.dataset.processing;
             }
-
-            // Ganti isi input file dengan file .webp hasil kompresi
-            target.files = newFiles.files;
-            delete target.dataset.compressing;
-
-            // Trigger ulang event change agar Decap CMS membaca file baru
-            target.dispatchEvent(new Event('change', { bubbles: true }));
           }
-        }, true);
+        }, true); // Gunakan *capturing phase* agar kita mencegat event lebih awal
       })();
-
       // ========================================================
       // BENTO GALLERY EDITOR COMPONENT
       // ========================================================
