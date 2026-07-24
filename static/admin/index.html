@@ -5,60 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Content Manager</title>
     
-    <!-- Library Kompresi Gambar (Sangat Ringan ~28KB) -->
-    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
+    <!-- 1. Panggil library image-compression DENGAN UNPKG CDN resmi -->
+    <script src="https://unpkg.com/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+
+    <!-- 2. Decap CMS Script -->
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </head>
   <body>
-    <!-- Script Decap CMS -->
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-
-    <!-- ======================================================== -->
-    <!-- 1. AUTOMATIC WEBP CONVERTER (PRE-UPLOAD INTERCEPTOR)     -->
-    <!-- ======================================================== -->
     <script>
+      // Memastikan event handler dipasang setelah Decap CMS siap
       CMS.registerEventListener({
         name: 'preUpload',
         handler: async ({ file }) => {
-          // Jika yang di-upload bukan file gambar, langsung lewati
+          // Hanya proses file gambar
           if (!file || !file.type.startsWith('image/')) return { file };
 
-          // Konfigurasi Kompresi WebP
+          // Pengecekan aman: pastikan fungsi imageCompression benar-benar ada di browser
+          const compressFn = window.imageCompression || (window.browserImageCompression && window.browserImageCompression.default);
+
+          if (!compressFn) {
+            console.warn("Library image compression belum ter-load sempurna. Mengupload file asli.");
+            return { file };
+          }
+
           const options = {
-            maxSizeMB: 0.8,          // Maksimal ukuran file: 800 KB
-            maxWidthOrHeight: 1200,  // Dimensi maksimal 1200px (Sangat pas untuk Bento Grid)
-            useWebWorker: true,      // Menggunakan background process agar browser tidak lag
-            fileType: 'image/webp'   // Paksa ubah format ke WebP
+            maxSizeMB: 0.8,
+            maxWidthOrHeight: 1200,
+            useWebWorker: true,
+            fileType: 'image/webp'
           };
 
           try {
-            // Proses kompresi & convert langsung di browser user
-            const compressedBlob = await imageCompression(file, options);
+            // Kompres & konversi gambar
+            const compressedBlob = await compressFn(file, options);
             
-            // Ubah ekstensi nama file asli menjadi .webp
+            // Ubah ekstensi file nama menjadi .webp
             const cleanName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
             const newFileName = `${cleanName}.webp`;
             
-            // Buat file baru berformat WebP
             const webpFile = new File([compressedBlob], newFileName, { type: 'image/webp' });
             
             return { file: webpFile };
           } catch (error) {
-            console.error("Gagal mengompres gambar, mengunggah file asli:", error);
+            console.error("Gagal mengompres gambar:", error);
             return { file };
           }
         },
       });
-    </script>
 
-    <!-- ======================================================== -->
-    <!-- 2. COMPONENT BENTO GRID GALLERY (GUI VISUAL UNTUK NORMIES)-->
-    <!-- ======================================================== -->
-    <script>
+      // Component Editor Bento Gallery
       CMS.registerEditorComponent({
         id: "bento-gallery",
         label: "🖼️ Bento Gallery (Upload Foto)",
         
-        // Form Visual untuk Editor Decap CMS
         fields: [
           {
             label: "Daftar Foto Kegiatan",
@@ -95,10 +94,8 @@
           }
         ],
 
-        // Pattern Regex Shortcode Hugo
         pattern: /^\{\{<\s*bento\s*>\}\}([\s\S]*?)\{\{<\s*\/bento\s*>\}\}$/,
 
-        // Membaca Kembali Data Shortcode saat Edit Post
         fromBlock: function(match) {
           const innerContent = match[1] || "";
           const itemRegex = /\{\{<\s*bento-item\s+src="([^"]+)"(?:\s+size="([^"]+)")?(?:\s+alt="([^"]+)")?\s*>\}\}/g;
@@ -116,7 +113,6 @@
           return { images: images };
         },
 
-        // Merender Input Visual menjadi Shortcode Hugo
         toBlock: function(obj) {
           if (!obj.images || !obj.images.length) return "";
           
@@ -127,7 +123,6 @@
           return `{{< bento >}}\n${itemsHtml}\n{{< /bento >}}`;
         },
 
-        // Tampilan Card Preview di Admin Dashboard
         toPreview: function(obj) {
           const count = obj.images ? obj.images.length : 0;
           return `<div style="padding: 12px; border: 2px dashed #0284c7; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-weight: bold;">
