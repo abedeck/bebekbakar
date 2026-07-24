@@ -50,36 +50,6 @@ collections:
         widget: "list"
         required: false
 
-      # ========================================================
-      # GALERI FOTO BENTO GRID (DISATUKAN DI DALAM POSTS)
-      # ========================================================
-      - label: "Galeri Foto Bento Grid"
-        name: "bento_gallery"
-        widget: "list"
-        required: false
-        hint: "Tambahkan foto-foto kegiatan dari Google Drive di sini"
-        fields:
-          - label: "ID File Google Drive"
-            name: "drive_id"
-            widget: "string"
-            hint: "Ambil ID acak dari link Drive (contoh: 1ABC123xyz...)"
-          
-          - label: "Keterangan Foto (Alt Text)"
-            name: "alt"
-            widget: "string"
-            required: false
-            
-          - label: "Ukuran Layout Foto"
-            name: "size"
-            widget: "select"
-            default: "normal"
-            options:
-              - { label: "Standar / Normal (1x1)", value: "normal" }
-              - { label: "Melebar / Landscape (2x1)", value: "wide" }
-              - { label: "Tinggi / Portrait (1x2)", value: "tall" }
-              - { label: "Besar Utama (2x2)", value: "big" }
-      # ========================================================
-
       - label: "Content"
         name: "body"
         widget: "markdown"
