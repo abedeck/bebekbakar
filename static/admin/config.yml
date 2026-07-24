@@ -35,7 +35,7 @@ collections:
         required: false
 
       - label: "Thumbnail Image"
-        name: "featured_image"       # <-- Disamakan dengan featured_image di Hugo
+        name: "featured_image"
         widget: "image"
         required: false
         default: "cover.jpg"
@@ -50,25 +50,8 @@ collections:
         widget: "list"
         required: false
 
-      - label: "Content"
-        name: "body"
-        widget: "markdown"
- # ========================================================
-      # BLOK GALERI BENTO GRID DI SINI
       # ========================================================
-  - name: "gallery"
-    label: "Artikel & Kegiatan"
-    folder: "content/posts"
-    create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
-    fields:
-      - { label: "Judul Post", name: "title", widget: "string" }
-      - { label: "Tanggal Published", name: "date", widget: "datetime" }
-      - { label: "Deskripsi Singkat", name: "description", widget: "text", required: false }
-      - { label: "Thumbnail Image", name: "featured_image", widget: "image", required: false }
-
-      # ========================================================
-      # TAMBAHKAN BLOK GALERI BENTO GRID DI SINI
+      # GALERI FOTO BENTO GRID (DISATUKAN DI DALAM POSTS)
       # ========================================================
       - label: "Galeri Foto Bento Grid"
         name: "bento_gallery"
@@ -97,5 +80,6 @@ collections:
               - { label: "Besar Utama (2x2)", value: "big" }
       # ========================================================
 
-      # Field isi artikel Markdown biasa
-      - { label: "Isi Teks / Konten", name: "body", widget: "markdown" }
+      - label: "Content"
+        name: "body"
+        widget: "markdown"
