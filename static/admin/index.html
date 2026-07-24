@@ -6,7 +6,7 @@
     <title>Content Manager</title>
   </head>
   <body>
-    <!-- 1. Decap CMS Utama -->
+    <!-- 1. Script Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
     <!-- 2. Library Kompresi Gambar -->
@@ -14,25 +14,16 @@
 
     <script>
       // ========================================================
-      // 1. PRE-UPLOAD INTERCEPTOR (WEBP CONVERTER)
+      // 1. AUTOMATIC WEBP CONVERTER UNTUK DECAP CMS V3 (preSave)
       // ========================================================
       try {
         if (typeof CMS !== 'undefined') {
           CMS.registerEventListener({
-            name: 'preUpload',
-            handler: async ({ file }) => {
-              // Jika bukan file gambar, lewati
-              if (!file || !file.type || !file.type.startsWith('image/')) {
-                return { file };
-              }
-
-              // Deteksi fungsi kompresi di window
+            name: 'preSave',
+            handler: async ({ entry }) => {
+              // Fungsi kompresi gambar
               const compressFn = window.imageCompression;
-
-              if (!compressFn) {
-                console.warn("Library imageCompression belum siap, mengunggah file asli.");
-                return { file };
-              }
+              if (!compressFn) return entry.get('data');
 
               const options = {
                 maxSizeMB: 0.8,
@@ -41,26 +32,40 @@
                 fileType: 'image/webp'
               };
 
-              try {
-                const compressedBlob = await compressFn(file, options);
-                const cleanName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-                const newFileName = `${cleanName}.webp`;
-                const webpFile = new File([compressedBlob], newFileName, { type: 'image/webp' });
+              // Ambil semua file media yang baru di-upload dalam sesi ini
+              const mediaFiles = entry.get('mediaFiles');
+              if (!mediaFiles || !mediaFiles.size) return entry.get('data');
 
-                return { file: webpFile };
-              } catch (err) {
-                console.error("Gagal mengompres gambar:", err);
-                return { file };
+              // Dapatkan data entry
+              let data = entry.get('data');
+
+              // Lakukan kompresi untuk setiap file gambar
+              for (const fileObj of mediaFiles.toArray()) {
+                const file = fileObj.file;
+                if (file && file.type && file.type.startsWith('image/')) {
+                  try {
+                    const compressedBlob = await compressFn(file, options);
+                    const cleanName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                    const newFileName = `${cleanName}.webp`;
+                    
+                    // Ganti file dengan versi WebP
+                    fileObj.file = new File([compressedBlob], newFileName, { type: 'image/webp' });
+                  } catch (err) {
+                    console.error("Gagal kompres gambar:", err);
+                  }
+                }
               }
+
+              return data;
             },
           });
         }
       } catch (e) {
-        console.error("Error registrasi event preUpload:", e);
+        console.error("Error registerEventListener:", e);
       }
 
       // ========================================================
-      // 2. COMPONENT BENTO GALLERY
+      // 2. COMPONENT BENTO GALLERY (GUI FOR NORMIES)
       // ========================================================
       try {
         if (typeof CMS !== 'undefined') {
@@ -80,7 +85,7 @@
                     name: "src",
                     widget: "image",
                     choose_url: true,
-                    hint: "Bisa upload dari HP/Laptop (otomatis WebP) atau tempel URL"
+                    hint: "Bisa upload dari HP/Laptop (otomatis WebP saat Save) atau tempel URL"
                   },
                   {
                     label: "Ukuran Layout Foto",
@@ -142,7 +147,7 @@
           });
         }
       } catch (e) {
-        console.error("Error registrasi bento-gallery component:", e);
+        console.error("Error registerEditorComponent:", e);
       }
     </script>
   </body>
