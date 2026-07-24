@@ -10,7 +10,7 @@ categories:
   - Warta Gereja
   - Pengumuman
 ---
-![Foto Kegiatan Pemuda](08aaeeaf5c1bb3341857a479b3447bc8.jpg)
+![Foto Kegiatan Pemuda](08aaeeaf5c1bb3341857a479b3447bc8.jpg "Foto Kegiatan Pemuda")
 
 Salam sejahtera dalam kasih Tuhan kita Yesus Kristus. 
 
