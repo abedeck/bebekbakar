@@ -61,10 +61,10 @@ Bersyukur atas kelahiran putra pertama dari pasangan **Bpk. Agus & Ibu Siska** p
 
 - - -
 {{< bento >}}
-  {{< bento-item src="https://imgur.com/tdU43fn" size="big" alt="Foto Utama" >}}
-  {{< bento-item src="https://imgur.com/gallery/church-city-center-JgASInP" size="tall" >}}
-  {{< bento-item src="https://imgur.com/gallery/chiesa-del-ges-e-dei-santi-ambrogio-e-andrea-hxGo7JW" size="wide" >}}
-  {{< bento-item src="https://imgur.com/gallery/blue-sky-RZAFTBW" size="normal" >}}
+  {{< bento-item src="https://i.imgur.com/tdU43fn.jpeg" size="big" alt="Foto Utama" >}}
+  {{< bento-item src="https://i.imgur.com/5P5sk3y.jpeg" size="tall" >}}
+  {{< bento-item src="https://i.imgur.com/tILLyVO.jpeg" size="wide" >}}
+  {{< bento-item src="https://i.imgur.com/oj1PTlX.jpeg" size="normal" >}}
 {{< /bento >}}
 ## IV. Laporan Keuangan Singkat
 
