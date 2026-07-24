@@ -1,0 +1,27 @@
+backend:
+  name: git-gateway
+  repo: abedeck/bebekbakar
+  branch: main # Atau 'master', sesuaikan dengan branch utama GitHub-mu
+  base_url: decap-oauth.abednega.workers.dev # URL Cloudflare Worker kamu
+  auth_endpoint: auth
+
+media_folder: "content/posts/{{slug}}" # Lokasi gambar disimpan (Page Bundle)
+public_folder: ""
+
+collections:
+  - name: "posts"
+    label: "Blog Posts"
+    folder: "content/posts"
+    create: true
+    slug: "{{slug}}"
+    path: "{{slug}}/index" # Agar otomatis membuat folder/index.md (Page Bundle)
+    media_folder: "" # Menyimpan gambar langsung di dalam folder artikel
+    public_folder: ""
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false }
+      - { label: "Author", name: "author", widget: "string", default: "Claira Ananda Putri" }
+      - { label: "Cover Image", name: "image", widget: "image", required: false, default: "cover.jpg" }
+      - { label: "Categories", name: "categories", widget: "list", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
