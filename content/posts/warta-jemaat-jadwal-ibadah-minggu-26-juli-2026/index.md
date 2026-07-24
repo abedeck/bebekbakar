@@ -62,8 +62,7 @@ Bersyukur atas kelahiran putra pertama dari pasangan **Bpk. Agus & Ibu Siska** p
 - - -
 
 {{< bento >}}
-  {{< bento-item src="dsc00373.jpg" size="normal" alt="" >}}
-  {{< bento-item src="dsc00334.jpg" size="normal" alt="" >}}
+  {{< bento-item src="dsc00317.jpg" size="normal" alt="" >}}
 {{< /bento >}}
 
 ## IV. Laporan Keuangan Singkat
