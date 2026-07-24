@@ -6,117 +6,16 @@
     <title>Content Manager</title>
   </head>
   <body>
-    <!-- 1. Decap CMS Utama -->
+    <!-- Decap CMS Utama -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
-    <!-- 2. Library Kompresi Gambar (browser-image-compression) -->
-    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
-
     <script>
-      // ========================================================
-      // AUTOMATIC BROWSER-SIDE WEBP COMPRESSOR (FIXED INTERCEPTOR)
-      // ========================================================
-      (function() {
-        // Fungsi pembantu untuk kompresi file
-        async function processAndCompress(file) {
-          // Hanya kompres jika file adalah gambar, bukan SVG, dan ukurannya cukup besar
-          if (!file || !file.type.startsWith('image/') || file.type === 'image/svg+xml' || file.size < 50 * 1024) return file;
-
-          const options = {
-            maxSizeMB: 0.5,             // Ukuran maksimal ~500 KB
-            maxWidthOrHeight: 1200,      // Max dimensi 1200px (pas untuk web)
-            useWebWorker: true,
-            fileType: 'image/webp'      // Paksa ubah ekstensi & format ke WebP
-          };
-
-          try {
-            const compressFn = window.imageCompression;
-            if (!compressFn) return file;
-
-            console.log(`Mengompres gambar asli: ${(file.size / 1024 / 1024).toFixed(2)} MB...`);
-            const compressedBlob = await compressFn(file, options);
-            
-            // Buat nama file baru berakhiran .webp
-            const cleanName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-            const newFileName = `${cleanName}.webp`;
-
-            const webpFile = new File([compressedBlob], newFileName, {
-              type: 'image/webp',
-              lastModified: Date.now()
-            });
-
-            console.log(`Hasil kompresi WebP: ${(webpFile.size / 1024).toFixed(2)} KB!`);
-            return webpFile;
-          } catch (err) {
-            console.error("Gagal kompresi, mengupload file asli:", err);
-            return file;
-          }
-        }
-
-        // Mencegat (Intercept) Event Change pada Input File Media Decap CMS (FIXED)
-        document.addEventListener('change', async function(e) {
-          const target = e.target;
-          
-          // Pastikan ini adalah input file
-          if (target && target.tagName === 'INPUT' && target.type === 'file') {
-            
-            // Mencegah *infinite loop* saat kita memicu ulang event change
-            if (target.dataset.processing === 'true') return;
-
-            const files = target.files;
-            if (!files || files.length === 0) return;
-
-            // Pastikan ini adalah input file yang digunakan oleh Decap CMS
-            // Decap CMS biasanya menambahkan atribut tertentu, tapi mengecek input file saja sudah cukup
-            
-            // Hentikan event asli sejenak
-            e.stopImmediatePropagation();
-            e.preventDefault(); // Mencegah Decap langsung membaca file asli
-            target.dataset.processing = 'true'; // Tandai bahwa kita sedang memproses file
-
-            console.log(`Mendeteksi ${files.length} file dipilih. Memulai kompresi...`);
-
-            try {
-              const newFiles = new DataTransfer();
-
-              for (let i = 0; i < files.length; i++) {
-                // Kompres setiap file
-                const compressed = await processAndCompress(files[i]);
-                newFiles.items.add(compressed);
-              }
-
-              // Ganti isi input file dengan file .webp hasil kompresi
-              target.files = newFiles.files;
-              console.log("File di input browser telah diganti dengan versi WebP.");
-
-              // Trigger ulang event change agar Decap CMS membaca file baru
-              // Decap CMS menangkap event change untuk memproses file dan menampilkan pratinjau
-              const newEvent = new Event('change', { bubbles: true, cancelable: true });
-              
-              // Lepas penanda pemrosesan agar pemicu ulang event change tidak memanggil skrip ini lagi
-              target.dataset.processing = 'false'; 
-              
-              target.dispatchEvent(newEvent);
-              console.log("Memicu ulang event change untuk Decap CMS.");
-
-            } catch (error) {
-              console.error("Error selama proses kompresi:", error);
-              // Fallback jika terjadi error, kembalikan ke event asli
-              target.dataset.processing = 'false';
-              target.dispatchEvent(new Event('change', { bubbles: true }));
-            } finally {
-              // Pastikan penanda pemrosesan dihapus
-              delete target.dataset.processing;
-            }
-          }
-        }, true); // Gunakan *capturing phase* agar kita mencegat event lebih awal
-      })();
       // ========================================================
       // BENTO GALLERY EDITOR COMPONENT
       // ========================================================
       CMS.registerEditorComponent({
         id: "bento-gallery",
-        label: "🖼️ Bento Gallery (Upload Foto)",
+        label: "🖼️ Bento Gallery",
         
         fields: [
           {
@@ -130,7 +29,7 @@
                 name: "src",
                 widget: "image",
                 choose_url: true,
-                hint: "Upload foto dari HP/PC (otomatis di-convert ke WebP <500KB) atau tempel URL"
+                hint: "Upload foto dari HP/PC atau tempel URL"
               },
               {
                 label: "Ukuran Layout Foto",
