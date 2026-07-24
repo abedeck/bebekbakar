@@ -4,132 +4,146 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Content Manager</title>
-    
-    <!-- 1. Panggil library image-compression DENGAN UNPKG CDN resmi -->
-    <script src="https://unpkg.com/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
-
-    <!-- 2. Decap CMS Script -->
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </head>
   <body>
+    <!-- 1. Decap CMS Utama -->
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+
+    <!-- 2. Library Kompresi Gambar -->
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
+
     <script>
-      // Memastikan event handler dipasang setelah Decap CMS siap
-      CMS.registerEventListener({
-        name: 'preUpload',
-        handler: async ({ file }) => {
-          // Hanya proses file gambar
-          if (!file || !file.type.startsWith('image/')) return { file };
+      // ========================================================
+      // 1. PRE-UPLOAD INTERCEPTOR (WEBP CONVERTER)
+      // ========================================================
+      try {
+        if (typeof CMS !== 'undefined') {
+          CMS.registerEventListener({
+            name: 'preUpload',
+            handler: async ({ file }) => {
+              // Jika bukan file gambar, lewati
+              if (!file || !file.type || !file.type.startsWith('image/')) {
+                return { file };
+              }
 
-          // Pengecekan aman: pastikan fungsi imageCompression benar-benar ada di browser
-          const compressFn = window.imageCompression || (window.browserImageCompression && window.browserImageCompression.default);
+              // Deteksi fungsi kompresi di window
+              const compressFn = window.imageCompression;
 
-          if (!compressFn) {
-            console.warn("Library image compression belum ter-load sempurna. Mengupload file asli.");
-            return { file };
-          }
+              if (!compressFn) {
+                console.warn("Library imageCompression belum siap, mengunggah file asli.");
+                return { file };
+              }
 
-          const options = {
-            maxSizeMB: 0.8,
-            maxWidthOrHeight: 1200,
-            useWebWorker: true,
-            fileType: 'image/webp'
-          };
+              const options = {
+                maxSizeMB: 0.8,
+                maxWidthOrHeight: 1200,
+                useWebWorker: true,
+                fileType: 'image/webp'
+              };
 
-          try {
-            // Kompres & konversi gambar
-            const compressedBlob = await compressFn(file, options);
+              try {
+                const compressedBlob = await compressFn(file, options);
+                const cleanName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                const newFileName = `${cleanName}.webp`;
+                const webpFile = new File([compressedBlob], newFileName, { type: 'image/webp' });
+
+                return { file: webpFile };
+              } catch (err) {
+                console.error("Gagal mengompres gambar:", err);
+                return { file };
+              }
+            },
+          });
+        }
+      } catch (e) {
+        console.error("Error registrasi event preUpload:", e);
+      }
+
+      // ========================================================
+      // 2. COMPONENT BENTO GALLERY
+      // ========================================================
+      try {
+        if (typeof CMS !== 'undefined') {
+          CMS.registerEditorComponent({
+            id: "bento-gallery",
+            label: "🖼️ Bento Gallery (Upload Foto)",
             
-            // Ubah ekstensi file nama menjadi .webp
-            const cleanName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-            const newFileName = `${cleanName}.webp`;
-            
-            const webpFile = new File([compressedBlob], newFileName, { type: 'image/webp' });
-            
-            return { file: webpFile };
-          } catch (error) {
-            console.error("Gagal mengompres gambar:", error);
-            return { file };
-          }
-        },
-      });
-
-      // Component Editor Bento Gallery
-      CMS.registerEditorComponent({
-        id: "bento-gallery",
-        label: "🖼️ Bento Gallery (Upload Foto)",
-        
-        fields: [
-          {
-            label: "Daftar Foto Kegiatan",
-            name: "images",
-            widget: "list",
-            summary: "{{fields.alt}} ({{fields.size}})",
             fields: [
               {
-                label: "Pilih / Upload Foto",
-                name: "src",
-                widget: "image",
-                choose_url: true,
-                hint: "Bisa upload dari HP/Laptop (otomatis di-convert ke WebP) atau tempel URL"
-              },
-              {
-                label: "Ukuran Layout Foto",
-                name: "size",
-                widget: "select",
-                default: "normal",
-                options: [
-                  { label: "⬛ Standar / Normal (1x1)", value: "normal" },
-                  { label: "▬ Melebar / Landscape (2x1)", value: "wide" },
-                  { label: "▮ Tinggi / Portrait (1x2)", value: "tall" },
-                  { label: "██ Besar Utama (2x2)", value: "big" }
+                label: "Daftar Foto Kegiatan",
+                name: "images",
+                widget: "list",
+                summary: "{{fields.alt}} ({{fields.size}})",
+                fields: [
+                  {
+                    label: "Pilih / Upload Foto",
+                    name: "src",
+                    widget: "image",
+                    choose_url: true,
+                    hint: "Bisa upload dari HP/Laptop (otomatis WebP) atau tempel URL"
+                  },
+                  {
+                    label: "Ukuran Layout Foto",
+                    name: "size",
+                    widget: "select",
+                    default: "normal",
+                    options: [
+                      { label: "⬛ Standar / Normal (1x1)", value: "normal" },
+                      { label: "▬ Melebar / Landscape (2x1)", value: "wide" },
+                      { label: "▮ Tinggi / Portrait (1x2)", value: "tall" },
+                      { label: "██ Besar Utama (2x2)", value: "big" }
+                    ]
+                  },
+                  {
+                    label: "Keterangan Foto (Alt/Caption)",
+                    name: "alt",
+                    widget: "string",
+                    required: false
+                  }
                 ]
-              },
-              {
-                label: "Keterangan Foto (Alt/Caption)",
-                name: "alt",
-                widget: "string",
-                required: false
               }
-            ]
-          }
-        ],
+            ],
 
-        pattern: /^\{\{<\s*bento\s*>\}\}([\s\S]*?)\{\{<\s*\/bento\s*>\}\}$/,
+            pattern: /^\{\{<\s*bento\s*>\}\}([\s\S]*?)\{\{<\s*\/bento\s*>\}\}$/,
 
-        fromBlock: function(match) {
-          const innerContent = match[1] || "";
-          const itemRegex = /\{\{<\s*bento-item\s+src="([^"]+)"(?:\s+size="([^"]+)")?(?:\s+alt="([^"]+)")?\s*>\}\}/g;
-          const images = [];
-          let itemMatch;
+            fromBlock: function(match) {
+              const innerContent = match[1] || "";
+              const itemRegex = /\{\{<\s*bento-item\s+src="([^"]+)"(?:\s+size="([^"]+)")?(?:\s+alt="([^"]+)")?\s*>\}\}/g;
+              const images = [];
+              let itemMatch;
 
-          while ((itemMatch = itemRegex.exec(innerContent)) !== null) {
-            images.push({
-              src: itemMatch[1],
-              size: itemMatch[2] || "normal",
-              alt: itemMatch[3] || ""
-            });
-          }
+              while ((itemMatch = itemRegex.exec(innerContent)) !== null) {
+                images.push({
+                  src: itemMatch[1],
+                  size: itemMatch[2] || "normal",
+                  alt: itemMatch[3] || ""
+                });
+              }
 
-          return { images: images };
-        },
+              return { images: images };
+            },
 
-        toBlock: function(obj) {
-          if (!obj.images || !obj.images.length) return "";
-          
-          const itemsHtml = obj.images.map(img => {
-            return `  {{< bento-item src="${img.src || ''}" size="${img.size || 'normal'}" alt="${img.alt || ''}" >}}`;
-          }).join("\n");
+            toBlock: function(obj) {
+              if (!obj.images || !obj.images.length) return "";
+              
+              const itemsHtml = obj.images.map(img => {
+                return `  {{< bento-item src="${img.src || ''}" size="${img.size || 'normal'}" alt="${img.alt || ''}" >}}`;
+              }).join("\n");
 
-          return `{{< bento >}}\n${itemsHtml}\n{{< /bento >}}`;
-        },
+              return `{{< bento >}}\n${itemsHtml}\n{{< /bento >}}`;
+            },
 
-        toPreview: function(obj) {
-          const count = obj.images ? obj.images.length : 0;
-          return `<div style="padding: 12px; border: 2px dashed #0284c7; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-weight: bold;">
-            🖼️ Bento Gallery (${count} foto tersimpan & siap di-publish)
-          </div>`;
+            toPreview: function(obj) {
+              const count = obj.images ? obj.images.length : 0;
+              return `<div style="padding: 12px; border: 2px dashed #0284c7; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-weight: bold;">
+                🖼️ Bento Gallery (${count} foto tersimpan)
+              </div>`;
+            }
+          });
         }
-      });
+      } catch (e) {
+        console.error("Error registrasi bento-gallery component:", e);
+      }
     </script>
   </body>
 </html>
