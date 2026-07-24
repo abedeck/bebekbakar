@@ -61,10 +61,11 @@ Bersyukur atas kelahiran putra pertama dari pasangan **Bpk. Agus & Ibu Siska** p
 
 - - -
 
-{{< bento >}}
-
 ![](08aaeeaf5c1bb3341857a479b3447bc8.jpg)
 
+![](657bbcede8dcc68d6e43f48f364b22cd.jpg)
+
+{{< bento >}}
   {{< bento-item src="657bbcede8dcc68d6e43f48f364b22cd.jpg" size="big" alt="Foto Utama" >}}
   {{< bento-item src="657bbcede8dcc68d6e43f48f364b22cd.jpg" size="tall" alt="Foto tinggi">}}
   {{< bento-item src="657bbcede8dcc68d6e43f48f364b22cd.jpg" size="wide" alt="Foto wide">}}
