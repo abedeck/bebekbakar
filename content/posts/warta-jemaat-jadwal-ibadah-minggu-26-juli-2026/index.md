@@ -66,6 +66,7 @@ Bersyukur atas kelahiran putra pertama dari pasangan **Bpk. Agus & Ibu Siska** p
   {{< bento-item src="https://i.imgur.com/tILLyVO.jpeg" size="wide" >}}
   {{< bento-item src="https://i.imgur.com/oj1PTlX.jpeg" size="normal" >}}
 {{< /bento >}}
+
 ## IV. Laporan Keuangan Singkat
 
 > *"Masing-masing hendaklah memberikan menurut kerelaan hatinya, jangan dengan sedih hati atau karena paksaan, sebab Allah mengasihi orang yang memberi dengan sukacita."* — **2 Korintus 9:7**
