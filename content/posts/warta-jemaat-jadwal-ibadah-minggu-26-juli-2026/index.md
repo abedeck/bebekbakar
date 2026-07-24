@@ -6,12 +6,12 @@ summary: Informasi warta jemaat mingguan, jadwal ibadah umum, pelayanan
   kategorial, serta laporan keuangan gereja minggu ini.
 featured_image: 08aaeeaf5c1bb3341857a479b3447bc8.jpg
 author: Sekretariat Majelis
-categories:
-  - Warta Gereja
-  - Pengumuman
 bento_gallery:
   - size: wide
     drive_id: 0B_rQCxIGqby2YmNWcUxmdGVzWVk
+categories:
+  - Warta Gereja
+  - Pengumuman
 ---
 ![Foto Kegiatan Pemuda](08aaeeaf5c1bb3341857a479b3447bc8.jpg "Foto Kegiatan Pemuda")
 
@@ -60,7 +60,12 @@ Dalam rangka persiapan pelayanan masyarakat bulan depan, Pengurus Diakonia mengu
 Bersyukur atas kelahiran putra pertama dari pasangan **Bpk. Agus & Ibu Siska** pada tanggal 22 Juli 2026. Ibu dan bayi dalam keadaan sehat. Kiranya Tuhan berkati keluarga kecil ini.
 
 - - -
-
+{{< bento >}}
+  {{< bento-item src="https://imgur.com/tdU43fn" size="big" alt="Foto Utama" >}}
+  {{< bento-item src="https://imgur.com/gallery/church-city-center-JgASInP" size="tall" >}}
+  {{< bento-item src="https://imgur.com/gallery/chiesa-del-ges-e-dei-santi-ambrogio-e-andrea-hxGo7JW" size="wide" >}}
+  {{< bento-item src="https://imgur.com/gallery/blue-sky-RZAFTBW" size="normal" >}}
+{{< /bento >}}
 ## IV. Laporan Keuangan Singkat
 
 > *"Masing-masing hendaklah memberikan menurut kerelaan hatinya, jangan dengan sedih hati atau karena paksaan, sebab Allah mengasihi orang yang memberi dengan sukacita."* — **2 Korintus 9:7**
