@@ -4,20 +4,61 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Content Manager</title>
+    
+    <!-- Library Kompresi Gambar (Sangat Ringan ~28KB) -->
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
   </head>
   <body>
     <!-- Script Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
     <!-- ======================================================== -->
-    <!-- COMPONENT BENTO GRID GALLERY (SUPPORT UPLOAD LANGSUNG) -->
+    <!-- 1. AUTOMATIC WEBP CONVERTER (PRE-UPLOAD INTERCEPTOR)     -->
+    <!-- ======================================================== -->
+    <script>
+      CMS.registerEventListener({
+        name: 'preUpload',
+        handler: async ({ file }) => {
+          // Jika yang di-upload bukan file gambar, langsung lewati
+          if (!file || !file.type.startsWith('image/')) return { file };
+
+          // Konfigurasi Kompresi WebP
+          const options = {
+            maxSizeMB: 0.8,          // Maksimal ukuran file: 800 KB
+            maxWidthOrHeight: 1200,  // Dimensi maksimal 1200px (Sangat pas untuk Bento Grid)
+            useWebWorker: true,      // Menggunakan background process agar browser tidak lag
+            fileType: 'image/webp'   // Paksa ubah format ke WebP
+          };
+
+          try {
+            // Proses kompresi & convert langsung di browser user
+            const compressedBlob = await imageCompression(file, options);
+            
+            // Ubah ekstensi nama file asli menjadi .webp
+            const cleanName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+            const newFileName = `${cleanName}.webp`;
+            
+            // Buat file baru berformat WebP
+            const webpFile = new File([compressedBlob], newFileName, { type: 'image/webp' });
+            
+            return { file: webpFile };
+          } catch (error) {
+            console.error("Gagal mengompres gambar, mengunggah file asli:", error);
+            return { file };
+          }
+        },
+      });
+    </script>
+
+    <!-- ======================================================== -->
+    <!-- 2. COMPONENT BENTO GRID GALLERY (GUI VISUAL UNTUK NORMIES)-->
     <!-- ======================================================== -->
     <script>
       CMS.registerEditorComponent({
         id: "bento-gallery",
         label: "🖼️ Bento Gallery (Upload Foto)",
         
-        // Form Visual
+        // Form Visual untuk Editor Decap CMS
         fields: [
           {
             label: "Daftar Foto Kegiatan",
@@ -28,9 +69,9 @@
               {
                 label: "Pilih / Upload Foto",
                 name: "src",
-                widget: "image", // <-- Diubah jadi widget image agar ada tombol UPLOAD
+                widget: "image",
                 choose_url: true,
-                hint: "Bisa upload foto dari galeri HP/Laptop, atau tempel link URL"
+                hint: "Bisa upload dari HP/Laptop (otomatis di-convert ke WebP) atau tempel URL"
               },
               {
                 label: "Ukuran Layout Foto",
@@ -57,7 +98,7 @@
         // Pattern Regex Shortcode Hugo
         pattern: /^\{\{<\s*bento\s*>\}\}([\s\S]*?)\{\{<\s*\/bento\s*>\}\}$/,
 
-        // Baca Ulang Data saat Edit Post
+        // Membaca Kembali Data Shortcode saat Edit Post
         fromBlock: function(match) {
           const innerContent = match[1] || "";
           const itemRegex = /\{\{<\s*bento-item\s+src="([^"]+)"(?:\s+size="([^"]+)")?(?:\s+alt="([^"]+)")?\s*>\}\}/g;
@@ -75,7 +116,7 @@
           return { images: images };
         },
 
-        // Render ke Shortcode Hugo
+        // Merender Input Visual menjadi Shortcode Hugo
         toBlock: function(obj) {
           if (!obj.images || !obj.images.length) return "";
           
@@ -86,11 +127,11 @@
           return `{{< bento >}}\n${itemsHtml}\n{{< /bento >}}`;
         },
 
-        // Tampilan Preview di Admin Panel
+        // Tampilan Card Preview di Admin Dashboard
         toPreview: function(obj) {
           const count = obj.images ? obj.images.length : 0;
           return `<div style="padding: 12px; border: 2px dashed #0284c7; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-weight: bold;">
-            🖼️ Bento Gallery (${count} foto di-upload)
+            🖼️ Bento Gallery (${count} foto tersimpan & siap di-publish)
           </div>`;
         }
       });
