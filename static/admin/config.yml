@@ -34,7 +34,7 @@ collections:
         widget: "text"
         required: false
 
-      - label: "Cover Image"
+      - label: "Thumbnail Image"
         name: "featured_image"       # <-- Disamakan dengan featured_image di Hugo
         widget: "image"
         required: false
