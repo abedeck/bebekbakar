@@ -6,149 +6,167 @@
     <title>Content Manager</title>
   </head>
   <body>
-    <!-- 1. Script Decap CMS -->
+    <!-- 1. Decap CMS Utama -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
-    <!-- 2. Library Kompresi Gambar -->
+    <!-- 2. Library Kompresi Gambar (browser-image-compression) -->
     <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
 
     <script>
       // ========================================================
-      // 1. AUTOMATIC WEBP CONVERTER UNTUK DECAP CMS V3 (preSave)
+      // AUTOMATIC BROWSER-SIDE WEBP COMPRESSOR (INTECPTOR INPUT)
       // ========================================================
-      try {
-        if (typeof CMS !== 'undefined') {
-          CMS.registerEventListener({
-            name: 'preSave',
-            handler: async ({ entry }) => {
-              // Fungsi kompresi gambar
-              const compressFn = window.imageCompression;
-              if (!compressFn) return entry.get('data');
+      (function() {
+        // Simpan fungsi dasar pemroses file
+        const originalChange = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
 
-              const options = {
-                maxSizeMB: 0.8,
-                maxWidthOrHeight: 1200,
-                useWebWorker: true,
-                fileType: 'image/webp'
-              };
+        // Fungsi pembantu untuk kompresi file
+        async function processAndCompress(file) {
+          if (!file || !file.type.startsWith('image/')) return file;
+          
+          // Jangan kompres jika file sudah berupa webp kecil atau SVG
+          if (file.type === 'image/svg+xml') return file;
 
-              // Ambil semua file media yang baru di-upload dalam sesi ini
-              const mediaFiles = entry.get('mediaFiles');
-              if (!mediaFiles || !mediaFiles.size) return entry.get('data');
+          const options = {
+            maxSizeMB: 0.5,             // Ukuran maksimal ~500 KB
+            maxWidthOrHeight: 1200,      // Max dimensi 1200px (pas untuk web)
+            useWebWorker: true,
+            fileType: 'image/webp'      // Paksa ubah ekstensi & format ke WebP
+          };
 
-              // Dapatkan data entry
-              let data = entry.get('data');
+          try {
+            const compressFn = window.imageCompression;
+            if (!compressFn) return file;
 
-              // Lakukan kompresi untuk setiap file gambar
-              for (const fileObj of mediaFiles.toArray()) {
-                const file = fileObj.file;
-                if (file && file.type && file.type.startsWith('image/')) {
-                  try {
-                    const compressedBlob = await compressFn(file, options);
-                    const cleanName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-                    const newFileName = `${cleanName}.webp`;
-                    
-                    // Ganti file dengan versi WebP
-                    fileObj.file = new File([compressedBlob], newFileName, { type: 'image/webp' });
-                  } catch (err) {
-                    console.error("Gagal kompres gambar:", err);
-                  }
-                }
-              }
-
-              return data;
-            },
-          });
-        }
-      } catch (e) {
-        console.error("Error registerEventListener:", e);
-      }
-
-      // ========================================================
-      // 2. COMPONENT BENTO GALLERY (GUI FOR NORMIES)
-      // ========================================================
-      try {
-        if (typeof CMS !== 'undefined') {
-          CMS.registerEditorComponent({
-            id: "bento-gallery",
-            label: "🖼️ Bento Gallery (Upload Foto)",
+            console.log(`Mengompres gambar asli: ${(file.size / 1024 / 1024).toFixed(2)} MB...`);
+            const compressedBlob = await compressFn(file, options);
             
+            // Buat nama file baru berakhiran .webp
+            const cleanName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+            const newFileName = `${cleanName}.webp`;
+
+            const webpFile = new File([compressedBlob], newFileName, {
+              type: 'image/webp',
+              lastModified: Date.now()
+            });
+
+            console.log(`Hasil kompresi WebP: ${(webpFile.size / 1024).toFixed(2)} KB!`);
+            return webpFile;
+          } catch (err) {
+            console.error("Gagal kompresi, mengupload file asli:", err);
+            return file;
+          }
+        }
+
+        // Mencegat (Intercept) Event Change pada Input File Media Decap CMS
+        document.addEventListener('change', async function(e) {
+          const target = e.target;
+          if (target && target.tagName === 'INPUT' && target.type === 'file') {
+            if (target.dataset.compressing === 'true') return;
+
+            const files = target.files;
+            if (!files || files.length === 0) return;
+
+            // Hentikan event asli sejenak
+            e.stopImmediatePropagation();
+            target.dataset.compressing = 'true';
+
+            const newFiles = new DataTransfer();
+
+            for (let i = 0; i < files.length; i++) {
+              const compressed = await processAndCompress(files[i]);
+              newFiles.items.add(compressed);
+            }
+
+            // Ganti isi input file dengan file .webp hasil kompresi
+            target.files = newFiles.files;
+            delete target.dataset.compressing;
+
+            // Trigger ulang event change agar Decap CMS membaca file baru
+            target.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }, true);
+      })();
+
+      // ========================================================
+      // BENTO GALLERY EDITOR COMPONENT
+      // ========================================================
+      CMS.registerEditorComponent({
+        id: "bento-gallery",
+        label: "🖼️ Bento Gallery (Upload Foto)",
+        
+        fields: [
+          {
+            label: "Daftar Foto Kegiatan",
+            name: "images",
+            widget: "list",
+            summary: "{{fields.alt}} ({{fields.size}})",
             fields: [
               {
-                label: "Daftar Foto Kegiatan",
-                name: "images",
-                widget: "list",
-                summary: "{{fields.alt}} ({{fields.size}})",
-                fields: [
-                  {
-                    label: "Pilih / Upload Foto",
-                    name: "src",
-                    widget: "image",
-                    choose_url: true,
-                    hint: "Bisa upload dari HP/Laptop (otomatis WebP saat Save) atau tempel URL"
-                  },
-                  {
-                    label: "Ukuran Layout Foto",
-                    name: "size",
-                    widget: "select",
-                    default: "normal",
-                    options: [
-                      { label: "⬛ Standar / Normal (1x1)", value: "normal" },
-                      { label: "▬ Melebar / Landscape (2x1)", value: "wide" },
-                      { label: "▮ Tinggi / Portrait (1x2)", value: "tall" },
-                      { label: "██ Besar Utama (2x2)", value: "big" }
-                    ]
-                  },
-                  {
-                    label: "Keterangan Foto (Alt/Caption)",
-                    name: "alt",
-                    widget: "string",
-                    required: false
-                  }
+                label: "Pilih / Upload Foto",
+                name: "src",
+                widget: "image",
+                choose_url: true,
+                hint: "Upload foto dari HP/PC (otomatis di-convert ke WebP <500KB) atau tempel URL"
+              },
+              {
+                label: "Ukuran Layout Foto",
+                name: "size",
+                widget: "select",
+                default: "normal",
+                options: [
+                  { label: "⬛ Standar / Normal (1x1)", value: "normal" },
+                  { label: "▬ Melebar / Landscape (2x1)", value: "wide" },
+                  { label: "▮ Tinggi / Portrait (1x2)", value: "tall" },
+                  { label: "██ Besar Utama (2x2)", value: "big" }
                 ]
+              },
+              {
+                label: "Keterangan Foto (Alt/Caption)",
+                name: "alt",
+                widget: "string",
+                required: false
               }
-            ],
+            ]
+          }
+        ],
 
-            pattern: /^\{\{<\s*bento\s*>\}\}([\s\S]*?)\{\{<\s*\/bento\s*>\}\}$/,
+        pattern: /^\{\{<\s*bento\s*>\}\}([\s\S]*?)\{\{<\s*\/bento\s*>\}\}$/,
 
-            fromBlock: function(match) {
-              const innerContent = match[1] || "";
-              const itemRegex = /\{\{<\s*bento-item\s+src="([^"]+)"(?:\s+size="([^"]+)")?(?:\s+alt="([^"]+)")?\s*>\}\}/g;
-              const images = [];
-              let itemMatch;
+        fromBlock: function(match) {
+          const innerContent = match[1] || "";
+          const itemRegex = /\{\{<\s*bento-item\s+src="([^"]+)"(?:\s+size="([^"]+)")?(?:\s+alt="([^"]+)")?\s*>\}\}/g;
+          const images = [];
+          let itemMatch;
 
-              while ((itemMatch = itemRegex.exec(innerContent)) !== null) {
-                images.push({
-                  src: itemMatch[1],
-                  size: itemMatch[2] || "normal",
-                  alt: itemMatch[3] || ""
-                });
-              }
+          while ((itemMatch = itemRegex.exec(innerContent)) !== null) {
+            images.push({
+              src: itemMatch[1],
+              size: itemMatch[2] || "normal",
+              alt: itemMatch[3] || ""
+            });
+          }
 
-              return { images: images };
-            },
+          return { images: images };
+        },
 
-            toBlock: function(obj) {
-              if (!obj.images || !obj.images.length) return "";
-              
-              const itemsHtml = obj.images.map(img => {
-                return `  {{< bento-item src="${img.src || ''}" size="${img.size || 'normal'}" alt="${img.alt || ''}" >}}`;
-              }).join("\n");
+        toBlock: function(obj) {
+          if (!obj.images || !obj.images.length) return "";
+          
+          const itemsHtml = obj.images.map(img => {
+            return `  {{< bento-item src="${img.src || ''}" size="${img.size || 'normal'}" alt="${img.alt || ''}" >}}`;
+          }).join("\n");
 
-              return `{{< bento >}}\n${itemsHtml}\n{{< /bento >}}`;
-            },
+          return `{{< bento >}}\n${itemsHtml}\n{{< /bento >}}`;
+        },
 
-            toPreview: function(obj) {
-              const count = obj.images ? obj.images.length : 0;
-              return `<div style="padding: 12px; border: 2px dashed #0284c7; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-weight: bold;">
-                🖼️ Bento Gallery (${count} foto tersimpan)
-              </div>`;
-            }
-          });
+        toPreview: function(obj) {
+          const count = obj.images ? obj.images.length : 0;
+          return `<div style="padding: 12px; border: 2px dashed #0284c7; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-weight: bold;">
+            🖼️ Bento Gallery (${count} foto tersimpan)
+          </div>`;
         }
-      } catch (e) {
-        console.error("Error registerEditorComponent:", e);
-      }
+      });
     </script>
   </body>
 </html>
