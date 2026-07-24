@@ -5,7 +5,10 @@ backend:
   base_url: https://decap-oauth.abednega.workers.dev
   auth_endpoint: auth
 
-media_folder: "content/posts"
+# ========================================================
+# PENTING: Untuk Page Bundle, kosongkan media_folder global
+# ========================================================
+media_folder: ""
 public_folder: ""
 
 collections:
@@ -14,7 +17,14 @@ collections:
     folder: "content/posts"
     create: true
     slug: "{{slug}}"
-    path: "{{slug}}/index"
+    
+    # -------------------------------------------------------------
+    # PENGATURAN PAGE BUNDLE
+    # -------------------------------------------------------------
+    path: "{{slug}}/index"     # Membuat folder: content/posts/{slug}/index.md
+    media_folder: ""           # Upload foto LANGSUNG ke folder post aktif ({slug}/)
+    public_folder: ""          # Output path relatif di markdown (misal: "foto.webp")
+
     fields:
       - label: "Title"
         name: "title"
