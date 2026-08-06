@@ -13,8 +13,6 @@ categories:
   - Warta Gereja
   - Pengumuman
 ---
-![Foto Kegiatan Pemuda](08aaeeaf5c1bb3341857a479b3447bc8.jpg "Foto Kegiatan Pemuda")
-
 Salam sejahtera dalam kasih Tuhan kita Yesus Kristus. 
 
 Berikut adalah **Warta Jemaat** dan informasi kegiatan pelayanan gereja untuk pekan ini. Diharapkan seluruh jemaat dapat memperhatikan jadwal dan pengumuman berikut.
@@ -60,10 +58,6 @@ Dalam rangka persiapan pelayanan masyarakat bulan depan, Pengurus Diakonia mengu
 Bersyukur atas kelahiran putra pertama dari pasangan **Bpk. Agus & Ibu Siska** pada tanggal 22 Juli 2026. Ibu dan bayi dalam keadaan sehat. Kiranya Tuhan berkati keluarga kecil ini.
 
 - - -
-
-{{< bento >}}
-  {{< bento-item src="dsc00317.jpg" size="normal" alt="" >}}
-{{< /bento >}}
 
 ## IV. Laporan Keuangan Singkat
 
