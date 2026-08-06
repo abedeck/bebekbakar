@@ -75,7 +75,12 @@ collections:
       - label: "Nama / Judul Iklan"
         name: "title"
         widget: "string"
-
+# TAMBAHKAN INI AGAR TIDAK DIANGGAP DRAFT OLEH HUGO
+      - label: "Draft"
+        name: "draft"
+        widget: "boolean"
+        default: false
+        
       - label: "Status Aktif"
         name: "active"
         widget: "boolean"
