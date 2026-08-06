@@ -63,7 +63,7 @@ collections:
       - label: "Content"
         name: "body"
         widget: "markdown"
-        # ========================================================
+# ========================================================
   # KOLEKSI KHUSUS IKLAN SIDEBAR
   # ========================================================
   - name: "ads"
@@ -75,22 +75,37 @@ collections:
       - label: "Nama / Judul Iklan"
         name: "title"
         widget: "string"
-# TAMBAHKAN INI AGAR TIDAK DIANGGAP DRAFT OLEH HUGO
+
       - label: "Draft"
         name: "draft"
         widget: "boolean"
         default: false
-        
+
       - label: "Status Aktif"
         name: "active"
         widget: "boolean"
         default: true
         hint: "Matikan jika iklan ini sedang tidak ingin ditampilkan di sidebar"
 
+      - label: "Tanggal Tanggal/Waktu Expiry"
+        name: "expiryDate"
+        widget: "datetime"
+        required: false
+        date_format: "YYYY-MM-DD"
+        time_format: "HH:mm"
+        format: "YYYY-MM-DDTHH:mm:ssZ"
+        hint: "Kosongkan jika iklan berlaku selamanya. Jika diisi, iklan otomatis tersembunyi setelah tanggal/jam ini."
+
       - label: "Gambar Banner Iklan"
         name: "image"
         widget: "image"
-        hint: "Upload gambar banner iklan (disarankan rasio rasio tegak/persegi, misal 300x250px atau 300x600px)"
+        hint: "Upload gambar banner iklan (disarankan rasio tegak/persegi, misal 300x250px atau 300x600px)"
+
+      - label: "Teks Alt / Hover (Tooltip)"
+        name: "alt"
+        widget: "string"
+        required: false
+        hint: "Teks deskripsi gambar untuk SEO dan akan muncul saat kursor diarahkan ke iklan"
 
       - label: "Link Tujuan (URL)"
         name: "link"
