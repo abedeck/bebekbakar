@@ -63,3 +63,38 @@ collections:
       - label: "Content"
         name: "body"
         widget: "markdown"
+        # ========================================================
+  # KOLEKSI KHUSUS IKLAN SIDEBAR
+  # ========================================================
+  - name: "ads"
+    label: "Iklan Sidebar"
+    folder: "content/ads"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - label: "Nama / Judul Iklan"
+        name: "title"
+        widget: "string"
+
+      - label: "Status Aktif"
+        name: "active"
+        widget: "boolean"
+        default: true
+        hint: "Matikan jika iklan ini sedang tidak ingin ditampilkan di sidebar"
+
+      - label: "Gambar Banner Iklan"
+        name: "image"
+        widget: "image"
+        hint: "Upload gambar banner iklan (disarankan rasio rasio tegak/persegi, misal 300x250px atau 300x600px)"
+
+      - label: "Link Tujuan (URL)"
+        name: "link"
+        widget: "string"
+        hint: "URL lengkap saat iklan diklik (contoh: https://tokopedia.com/namatoko atau /kontak)"
+
+      - label: "Urutan Tampil"
+        name: "weight"
+        widget: "number"
+        default: 1
+        value_type: "int"
+        hint: "Angka lebih kecil akan muncul lebih atas"
