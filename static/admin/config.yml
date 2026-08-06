@@ -8,8 +8,8 @@ backend:
 # ========================================================
 # PENTING: Untuk Page Bundle, kosongkan media_folder global
 # ========================================================
-media_folder: ""
-public_folder: ""
+media_folder: "static/images"
+public_folder: "/images"
 
 collections:
   - name: "posts"
